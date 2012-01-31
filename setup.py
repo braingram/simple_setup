@@ -5,6 +5,7 @@
 
 import logging
 import os
+import re
 
 setup_tools_fallback = False # fallback to setuptools if distribute isn't found
 skip_tests = True # don't include subdir named 'tests' in package_data
@@ -90,13 +91,53 @@ def find_package_data(packages):
             package_data[package] += subdir_findall(package_to_path(package), subdir)
     return package_data
 
+def parse_requirements(file_name):
+    """
+    from:
+        http://cburgmer.posterous.com/pip-requirementstxt-and-setuppy
+    """
+    requirements = []
+    with open(file_name, 'r') as f:
+        for line in f:
+            if re.match(r'(\s*#)|(\s*$)', line): continue
+            if re.match(r'(\s*-e\s+', line):
+                requirements.append(re.sub(r'\s*-e\s+.*#egg=(.*)$',\
+                        r'\1', line))
+            elif re.match(r'\s*-f\s+', line):
+                pass
+            else:
+                requirements.append(line)
+    return requirements
+
+def parse_dependency_links(file_name):
+    """
+    from:
+        http://cburgmer.posterous.com/pip-requirementstxt-and-setuppy
+    """
+    dependency_links = []
+    with open(file_name) as f:
+        for line in f:
+            if re.match(r'\s*-[ef]\s+', line):
+                dependency_links.append(re.sub(r'\s*-[ef]\s+',\
+                        '', line))
+    return dependency_links
+
+# ----------- Override defaults here ----------------
 packages = setuptools.find_packages()
+
+package_name = packages[0]
 
 package_data = find_package_data(packages)
 
 scripts = find_scripts()
 
-package_name = packages[0]
+requirements_file = 'requirements.txt'
+if os.path.exists(requirements_file):
+    requirements = parse_requirements(requirements_file)
+    dependency_links = parse_dependency_links(requirements_file)
+else:
+    requirements = []
+    dependency_links = []
 
 if debug:
     logging.debug("Module name: %s" % package_name)
@@ -114,5 +155,8 @@ setuptools.setup(
     scripts = scripts,
     
     package_data = package_data,
-    include_package_data = True
+    include_package_data = True,
+
+    install_requires = requirements,
+    dependency_links = dependency_links
 )
