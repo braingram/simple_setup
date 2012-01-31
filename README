@@ -1,0 +1,18 @@
+This is a super simple setup.py that should require little to no customization.
+
+It will:
+
+1) find packages: using setuptools.find_packages('.')
+2) find scripts: any non-.pyc file in ./scripts
+3) find package data: any non-module, non-test subdirectories in a package
+4) parse requirements.txt (if available)
+5) automatically name the package: same name as first package found
+
+I need to find a good way to include this file in many existing git repos
+One option would be:
+1) at start of new repo, clone simple_setup
+2) have a clean.sh that is part of simple_setup repo that
+2a) deletes .git
+2b) deletes this readme
+2c) deletes clean.sh??
+Options 2 would be to see if git tags allows me to include only setup.py
