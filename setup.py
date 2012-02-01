@@ -7,10 +7,30 @@ import logging
 import os
 import re
 
-setup_tools_fallback = False # fallback to setuptools if distribute isn't found
-skip_tests = True # don't include subdir named 'tests' in package_data
+# ----- overrides -----
 
+# set these to anything but None to override the automatic defaults
+packages = None
+package_name = None
+package_data = None
+scripts = None
+requirements_file = None
+requirements = None
+dependency_links = None
+
+# ---------------------
+
+
+# ----- control flags -----
+
+# fallback to setuptools if distribute isn't found
+setup_tools_fallback = False
+
+# don't include subdir named 'tests' in package_data
+skip_tests = True
 debug = True
+
+# -------------------------
 
 if debug: logging.basicConfig(level=logging.DEBUG)
 # distribute import and testing
@@ -100,13 +120,13 @@ def parse_requirements(file_name):
     with open(file_name, 'r') as f:
         for line in f:
             if re.match(r'(\s*#)|(\s*$)', line): continue
-            if re.match(r'(\s*-e\s+', line):
+            if re.match(r'\s*-e\s+', line):
                 requirements.append(re.sub(r'\s*-e\s+.*#egg=(.*)$',\
-                        r'\1', line))
+                        r'\1', line).strip())
             elif re.match(r'\s*-f\s+', line):
                 pass
             else:
-                requirements.append(line)
+                requirements.append(line.strip())
     return requirements
 
 def parse_dependency_links(file_name):
@@ -123,21 +143,27 @@ def parse_dependency_links(file_name):
     return dependency_links
 
 # ----------- Override defaults here ----------------
-packages = setuptools.find_packages()
+if packages is None: packages = setuptools.find_packages()
 
-package_name = packages[0]
+if package_name is None: package_name = packages[0]
 
-package_data = find_package_data(packages)
+if package_data is None: package_data = find_package_data(packages)
 
-scripts = find_scripts()
+if scripts is None: scripts = find_scripts()
 
-requirements_file = 'requirements.txt'
+if requirements_file is None:
+    requirements_file = 'requirements.txt'
+
 if os.path.exists(requirements_file):
-    requirements = parse_requirements(requirements_file)
-    dependency_links = parse_dependency_links(requirements_file)
+    if requirements is None:
+        requirements = parse_requirements(requirements_file)
+    if dependency_links is None:
+        dependency_links = parse_dependency_links(requirements_file)
 else:
-    requirements = []
-    dependency_links = []
+    if requirements is None:
+        requirements = []
+    if dependency_links is None:
+        dependency_links = []
 
 if debug:
     logging.debug("Module name: %s" % package_name)
@@ -147,6 +173,12 @@ if debug:
     logging.debug("Scripts:")
     for script in scripts:
         logging.debug("\tScript: %s" % script)
+    logging.debug("Requirements:")
+    for req in requirements:
+        logging.debug("\t%s" % req)
+    logging.debug("Dependency links:")
+    for dl in dependency_links:
+        logging.debug("\t%s" % dl)
 
 setuptools.setup(
     name = package_name,
