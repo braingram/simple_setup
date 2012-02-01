@@ -28,6 +28,8 @@ setup_tools_fallback = False
 
 # don't include subdir named 'tests' in package_data
 skip_tests = True
+
+# print some extra debugging info
 debug = True
 
 # -------------------------
@@ -144,6 +146,8 @@ def parse_dependency_links(file_name):
 
 # ----------- Override defaults here ----------------
 if packages is None: packages = setuptools.find_packages()
+
+if len(packages) == 0: raise Exception("No valid packages found")
 
 if package_name is None: package_name = packages[0]
 
