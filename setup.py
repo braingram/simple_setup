@@ -34,7 +34,8 @@ debug = True
 
 # -------------------------
 
-if debug: logging.basicConfig(level=logging.DEBUG)
+if debug:
+    logging.basicConfig(level=logging.DEBUG)
 # distribute import and testing
 try:
     import distribute_setup
@@ -45,18 +46,25 @@ except ImportError:
     # distribute_setup.py was not in this directory
     if not (setup_tools_fallback):
         import setuptools
-        if not (hasattr(setuptools,'_distribute') and \
+        if not (hasattr(setuptools, '_distribute') and \
                 setuptools._distribute):
-            raise ImportError("distribute was not found and fallback to setuptools was not allowed")
+            raise ImportError(\
+                    "distribute was not found and fallback " \
+                    "to setuptools was not allowed")
         else:
-            logging.debug("distribute_setup.py not found, defaulted to system distribute")
+            logging.debug("distribute_setup.py not found, \
+                    defaulted to system distribute")
     else:
-        logging.debug("distribute_setup.py not found, defaulting to system setuptools")
+        logging.debug("distribute_setup.py not found, " \
+                "defaulting to system setuptools")
 
 import setuptools
 
+
 def find_scripts():
-    return [s for s in setuptools.findall('scripts/') if os.path.splitext(s)[1] != '.pyc']
+    return [s for s in setuptools.findall('scripts/') \
+            if os.path.splitext(s)[1] != '.pyc']
+
 
 def package_to_path(package):
     """
@@ -66,7 +74,8 @@ def package_to_path(package):
 
     No idea if this works on windows
     """
-    return package.replace('.','/')
+    return package.replace('.', '/')
+
 
 def find_subdirectories(package):
     """
@@ -79,6 +88,7 @@ def find_subdirectories(package):
         subdirectories = []
     return subdirectories
 
+
 def subdir_findall(dir, subdir):
     """
     Find all files in a subdirectory and return paths relative to dir
@@ -89,6 +99,7 @@ def subdir_findall(dir, subdir):
     strip_n = len(dir.split('/'))
     path = '/'.join((dir, subdir))
     return ['/'.join(s.split('/')[strip_n:]) for s in setuptools.findall(path)]
+
 
 def find_package_data(packages):
     """
@@ -104,14 +115,16 @@ def find_package_data(packages):
     for package in packages:
         package_data[package] = []
         for subdir in find_subdirectories(package):
-            if '.'.join((package, subdir)) in packages: # skip submodules
+            if '.'.join((package, subdir)) in packages:  # skip submodules
                 logging.debug("skipping submodule %s/%s" % (package, subdir))
                 continue
-            if skip_tests and (subdir == 'tests'): # skip tests
+            if skip_tests and (subdir == 'tests'):  # skip tests
                 logging.debug("skipping tests %s/%s" % (package, subdir))
                 continue
-            package_data[package] += subdir_findall(package_to_path(package), subdir)
+            package_data[package] += \
+                    subdir_findall(package_to_path(package), subdir)
     return package_data
+
 
 def parse_requirements(file_name):
     """
@@ -121,7 +134,8 @@ def parse_requirements(file_name):
     requirements = []
     with open(file_name, 'r') as f:
         for line in f:
-            if re.match(r'(\s*#)|(\s*$)', line): continue
+            if re.match(r'(\s*#)|(\s*$)', line):
+                continue
             if re.match(r'\s*-e\s+', line):
                 requirements.append(re.sub(r'\s*-e\s+.*#egg=(.*)$',\
                         r'\1', line).strip())
@@ -130,6 +144,7 @@ def parse_requirements(file_name):
             else:
                 requirements.append(line.strip())
     return requirements
+
 
 def parse_dependency_links(file_name):
     """
@@ -145,15 +160,20 @@ def parse_dependency_links(file_name):
     return dependency_links
 
 # ----------- Override defaults here ----------------
-if packages is None: packages = setuptools.find_packages()
+if packages is None:
+    packages = setuptools.find_packages()
 
-if len(packages) == 0: raise Exception("No valid packages found")
+if len(packages) == 0:
+    raise Exception("No valid packages found")
 
-if package_name is None: package_name = packages[0]
+if package_name is None:
+    package_name = packages[0]
 
-if package_data is None: package_data = find_package_data(packages)
+if package_data is None:
+    package_data = find_package_data(packages)
 
-if scripts is None: scripts = find_scripts()
+if scripts is None:
+    scripts = find_scripts()
 
 if requirements_file is None:
     requirements_file = 'requirements.txt'
@@ -185,14 +205,14 @@ if debug:
         logging.debug("\t%s" % dl)
 
 setuptools.setup(
-    name = package_name,
-    version = 'dev',
-    packages = packages,
-    scripts = scripts,
-    
-    package_data = package_data,
-    include_package_data = True,
+    name=package_name,
+    version='dev',
+    packages=packages,
+    scripts=scripts,
 
-    install_requires = requirements,
-    dependency_links = dependency_links
+    package_data=package_data,
+    include_package_data=True,
+
+    install_requires=requirements,
+    dependency_links=dependency_links
 )
