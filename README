@@ -8,11 +8,6 @@ It will:
 4) parse requirements.txt (if available)
 5) automatically name the package: same name as first package found
 
-I need to find a good way to include this file in many existing git repos
-One option would be:
-1) at start of new repo, clone simple_setup
-2) have a clean.sh that is part of simple_setup repo that
-2a) deletes .git
-2b) deletes this readme
-2c) deletes clean.sh??
-Options 2 would be to see if git tags allows me to include only setup.py
+To easily use this in a project, simply pull the latest version from gh-pages
+
+    wget http://braingram.github.com/simple_setup/setup.py
