@@ -204,15 +204,33 @@ if debug:
     for dl in dependency_links:
         logging.debug("\t%s" % dl)
 
-setuptools.setup(
-    name=package_name,
-    version='dev',
-    packages=packages,
-    scripts=scripts,
+if __name__ == '__main__':
 
-    package_data=package_data,
-    include_package_data=True,
+    sub_packages = packages
 
-    install_requires=requirements,
-    dependency_links=dependency_links
-)
+    use_numpy = True
+
+    if use_numpy:
+        from numpy.distutils.misc_util import Configuration
+        config = Configuration(package_name, '', None)
+
+        for sub_package in sub_packages:
+            print 'adding', sub_package
+            config.add_subpackage(sub_package)
+
+        from numpy.distutils.core import setup
+        setup(**config.todict())
+
+    else:
+        setuptools.setup(
+            name = package_name,
+            version = 'dev',
+            packages = packages,
+            scripts = scripts,
+
+            package_data = package_data,
+            include_package_data = True,
+
+            install_requires = requirements,
+            dependency_links = dependency_links
+        )
