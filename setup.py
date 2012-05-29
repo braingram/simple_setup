@@ -17,6 +17,7 @@ scripts = None
 requirements_file = None
 requirements = None
 dependency_links = None
+use_numpy = True
 
 # ---------------------
 
@@ -208,8 +209,6 @@ if __name__ == '__main__':
 
     sub_packages = packages
 
-    use_numpy = True
-
     if use_numpy:
         from numpy.distutils.misc_util import Configuration
         config = Configuration(package_name, '', None)
@@ -223,14 +222,14 @@ if __name__ == '__main__':
 
     else:
         setuptools.setup(
-            name = package_name,
-            version = 'dev',
-            packages = packages,
-            scripts = scripts,
+            name=package_name,
+            version='dev',
+            packages=packages,
+            scripts=scripts,
 
-            package_data = package_data,
-            include_package_data = True,
+            package_data=package_data,
+            include_package_data=True,
 
-            install_requires = requirements,
-            dependency_links = dependency_links
+            install_requires=requirements,
+            dependency_links=dependency_links
         )
