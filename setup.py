@@ -16,6 +16,7 @@ package_data = None
 scripts = None
 requirements_file = None
 requirements = None
+version = None
 dependency_links = None
 use_numpy = True
 
@@ -190,6 +191,17 @@ else:
     if dependency_links is None:
         dependency_links = []
 
+if version is None:
+    # try to get version from the package
+    try:
+        m = __import__(package_name, fromlist=['__version__'])
+        if hasattr(m, '__version__'):
+            version = m.__version__
+        else:
+            raise ImportError
+    except ImportError:
+        version = 'dev'
+
 if debug:
     logging.debug("Module name: %s" % package_name)
     for package in packages:
@@ -204,6 +216,7 @@ if debug:
     logging.debug("Dependency links:")
     for dl in dependency_links:
         logging.debug("\t%s" % dl)
+    logging.debug("Version: %s" % version)
 
 if __name__ == '__main__':
 
@@ -223,7 +236,7 @@ if __name__ == '__main__':
     else:
         setuptools.setup(
             name=package_name,
-            version='dev',
+            version=version,
             packages=packages,
             scripts=scripts,
 
