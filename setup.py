@@ -10,6 +10,9 @@ import re
 # ----- overrides -----
 
 # set these to anything but None to override the automatic defaults
+author = None
+author_email = None
+dependency_links = None
 packages = None
 package_name = None
 package_data = None
@@ -17,8 +20,6 @@ scripts = None
 requirements_file = None
 requirements = None
 version = None
-dependency_links = None
-use_numpy = False
 
 # ---------------------
 
@@ -34,6 +35,9 @@ skip_tests = True
 # print some extra debugging info
 debug = True
 
+# use numpy.distutils instead of setuptools
+use_numpy = False
+
 # -------------------------
 
 if debug:
@@ -48,23 +52,23 @@ except ImportError:
     # distribute_setup.py was not in this directory
     if not (setup_tools_fallback):
         import setuptools
-        if not (hasattr(setuptools, '_distribute') and \
+        if not (hasattr(setuptools, '_distribute') and
                 setuptools._distribute):
-            raise ImportError(\
-                    "distribute was not found and fallback " \
-                    "to setuptools was not allowed")
+            raise ImportError(
+                "distribute was not found and fallback "
+                "to setuptools was not allowed")
         else:
             logging.debug("distribute_setup.py not found, \
                     defaulted to system distribute")
     else:
-        logging.debug("distribute_setup.py not found, " \
-                "defaulting to system setuptools")
+        logging.debug("distribute_setup.py not found, "
+                      "defaulting to system setuptools")
 
 import setuptools
 
 
 def find_scripts():
-    return [s for s in setuptools.findall('scripts/') \
+    return [s for s in setuptools.findall('scripts/')
             if os.path.splitext(s)[1] != '.pyc']
 
 
@@ -124,7 +128,7 @@ def find_package_data(packages):
                 logging.debug("skipping tests %s/%s" % (package, subdir))
                 continue
             package_data[package] += \
-                    subdir_findall(package_to_path(package), subdir)
+                subdir_findall(package_to_path(package), subdir)
     return package_data
 
 
@@ -139,8 +143,8 @@ def parse_requirements(file_name):
             if re.match(r'(\s*#)|(\s*$)', line):
                 continue
             if re.match(r'\s*-e\s+', line):
-                requirements.append(re.sub(r'\s*-e\s+.*#egg=(.*)$',\
-                        r'\1', line).strip())
+                requirements.append(re.sub(r'\s*-e\s+.*#egg=(.*)$',
+                                           r'\1', line).strip())
             elif re.match(r'\s*-f\s+', line):
                 pass
             else:
@@ -157,9 +161,26 @@ def parse_dependency_links(file_name):
     with open(file_name) as f:
         for line in f:
             if re.match(r'\s*-[ef]\s+', line):
-                dependency_links.append(re.sub(r'\s*-[ef]\s+',\
-                        '', line))
+                dependency_links.append(re.sub(r'\s*-[ef]\s+',
+                                               '', line))
     return dependency_links
+
+
+def detect_version():
+    """
+    Try to detect the main package/module version by looking at:
+        module.__version__
+
+    otherwise, return 'dev'
+    """
+    try:
+        m = __import__(package_name, fromlist=['__version__'])
+        if hasattr(m, '__version__'):
+            return m.__version__
+    except ImportError:
+        pass
+    return 'dev'
+
 
 # ----------- Override defaults here ----------------
 if packages is None:
@@ -192,15 +213,7 @@ else:
         dependency_links = []
 
 if version is None:
-    # try to get version from the package
-    try:
-        m = __import__(package_name, fromlist=['__version__'])
-        if hasattr(m, '__version__'):
-            version = m.__version__
-        else:
-            raise ImportError
-    except ImportError:
-        version = 'dev'
+    version = detect_version()
 
 if debug:
     logging.debug("Module name: %s" % package_name)
@@ -217,6 +230,8 @@ if debug:
     for dl in dependency_links:
         logging.debug("\t%s" % dl)
     logging.debug("Version: %s" % version)
+    logging.debug("Author: %s" % author)
+    logging.debug("Author email: %s" % author_email)
 
 if __name__ == '__main__':
 
@@ -244,5 +259,8 @@ if __name__ == '__main__':
             include_package_data=True,
 
             install_requires=requirements,
-            dependency_links=dependency_links
+            dependency_links=dependency_links,
+
+            author=author,
+            author_email=author_email,
         )
