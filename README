@@ -7,7 +7,5 @@ It will:
 3) find package data: any non-module, non-test subdirectories in a package
 4) parse requirements.txt (if available)
 5) automatically name the package: same name as first package found
-
-To easily use this in a project, simply pull the latest version from gh-pages
-
-    wget http://braingram.github.com/simple_setup/setup.py
+6) fetch version from module.__version__ (or default to 'dev')
+7) get author info from ~/.pypirc (section: simple_setup, options: author, author_name)
