@@ -18,7 +18,7 @@ requirements_file = None
 requirements = None
 version = None
 dependency_links = None
-use_numpy = True
+use_numpy = False
 
 # ---------------------
 
