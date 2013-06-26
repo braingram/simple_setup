@@ -3,6 +3,7 @@
 
 """ distribute- and pip-enabled setup.py """
 
+import ConfigParser
 import logging
 import os
 import re
@@ -182,6 +183,32 @@ def detect_version():
     return 'dev'
 
 
+def get_author_info():
+    """
+    Try to read author name and email from ~/.pypirc (section simple).
+
+    In addition to the normal content for pypirc include the following to
+    allow this function to read your name and email
+
+    [simple_setup]
+    author: Joe
+    author_email: joe@schmo.org
+    """
+    author = None
+    author_email = None
+    fn = os.path.expanduser('~/.pypirc')
+    if os.path.exists(fn):
+        c = ConfigParser.SafeConfigParser()
+        c.read(fn)
+        if c.has_section('simple_setup'):
+            if c.has_option('simple_setup', 'author'):
+                author = c.get('simple_setup', 'author')
+            if c.has_option('simple_setup', 'author_email'):
+                author_email = c.get('simple_setup', 'author_email')
+    return author, author_email
+
+
+
 # ----------- Override defaults here ----------------
 if packages is None:
     packages = setuptools.find_packages()
@@ -214,6 +241,18 @@ else:
 
 if version is None:
     version = detect_version()
+
+if author is None:
+    author, email = get_author_info()  # save email for later
+else:
+    email = None
+
+if author_email is None:
+    if email is not None:  # if email was previously gotten
+        author_email = email
+    else:
+        _, author_email = get_author_info()
+
 
 if debug:
     logging.debug("Module name: %s" % package_name)
