@@ -14,6 +14,7 @@ import re
 author = None
 author_email = None
 dependency_links = None
+long_description = None
 packages = None
 package_name = None
 package_data = None
@@ -183,7 +184,7 @@ def detect_version():
     return 'dev'
 
 
-def get_author_info():
+def author_info_from_pypirc():
     """
     Try to read author name and email from ~/.pypirc (section simple).
 
@@ -207,6 +208,14 @@ def get_author_info():
                 author_email = c.get('simple_setup', 'author_email')
     return author, author_email
 
+
+def long_description_from_readme():
+    s = None
+    fn = os.path.join(os.path.dirname(__file__), 'README')
+    if os.path.exists(fn):
+        with open(fn, 'r') as f:
+            s = f.read()
+    return s
 
 
 # ----------- Override defaults here ----------------
@@ -243,7 +252,7 @@ if version is None:
     version = detect_version()
 
 if author is None:
-    author, email = get_author_info()  # save email for later
+    author, email = author_info_from_pypirc()  # save email for later
 else:
     email = None
 
@@ -251,7 +260,10 @@ if author_email is None:
     if email is not None:  # if email was previously gotten
         author_email = email
     else:
-        _, author_email = get_author_info()
+        _, author_email = author_info_from_pypirc()
+
+if long_description is None:
+    long_description = long_description_from_readme()
 
 
 if debug:
@@ -293,6 +305,7 @@ if __name__ == '__main__':
             version=version,
             packages=packages,
             scripts=scripts,
+            long_description=long_description,
 
             package_data=package_data,
             include_package_data=True,
