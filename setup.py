@@ -267,7 +267,7 @@ if long_description is None:
     long_description = long_description_from_readme()
 
 if test_suite is None:
-    if os.path.existst('%s/tests.py' % package_name):
+    if os.path.exists('%s/tests.py' % package_name):
         test_suite = "%s.tests.suite" % package_name
 
 
