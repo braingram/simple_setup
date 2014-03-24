@@ -22,6 +22,7 @@ scripts = None
 requirements_file = None
 requirements = None
 version = None
+test_suite = None
 
 # ---------------------
 
@@ -60,8 +61,8 @@ except ImportError:
                 "distribute was not found and fallback "
                 "to setuptools was not allowed")
         else:
-            logging.debug("distribute_setup.py not found, \
-                    defaulted to system distribute")
+            logging.debug("distribute_setup.py not found, "
+                          "defaulted to system distribute")
     else:
         logging.debug("distribute_setup.py not found, "
                       "defaulting to system setuptools")
@@ -265,6 +266,10 @@ if author_email is None:
 if long_description is None:
     long_description = long_description_from_readme()
 
+if test_suite is None:
+    if os.path.existst('%s/tests.py' % package_name):
+        test_suite = "%s.tests.suite" % package_name
+
 
 if debug:
     logging.debug("Module name: %s" % package_name)
@@ -283,6 +288,7 @@ if debug:
     logging.debug("Version: %s" % version)
     logging.debug("Author: %s" % author)
     logging.debug("Author email: %s" % author_email)
+    logging.debug("Test Suite: %s" % test_suite)
 
 if __name__ == '__main__':
 
@@ -315,4 +321,5 @@ if __name__ == '__main__':
 
             author=author,
             author_email=author_email,
+            test_suite=test_suite,
         )
