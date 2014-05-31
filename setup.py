@@ -55,14 +55,22 @@ except ImportError:
     # distribute_setup.py was not in this directory
     if not (setup_tools_fallback):
         import setuptools
-        if not (hasattr(setuptools, '_distribute') and
-                setuptools._distribute):
+        # check if setuptools is distribute
+        vt = setuptools.__version__.split('.')
+        if len(vt) == 1:
+            vmajor = int(vt[0])
+            vminor = 0
+        elif len(vt) > 1:
+            vmajor = int(vt[0])
+            vminor = int(vt[1])
+        if (hasattr(setuptools, 'distribute') and
+                setuptools._distribute) or (vmajor > 0 or vminor > 6):
+            logging.debug("distribute_setup.py not found, "
+                          "defaulted to system distribute")
+        else:
             raise ImportError(
                 "distribute was not found and fallback "
                 "to setuptools was not allowed")
-        else:
-            logging.debug("distribute_setup.py not found, "
-                          "defaulted to system distribute")
     else:
         logging.debug("distribute_setup.py not found, "
                       "defaulting to system setuptools")
