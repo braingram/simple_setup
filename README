@@ -9,3 +9,14 @@ It will:
 5) automatically name the package: same name as first package found
 6) fetch version from module.__version__ (or default to 'dev')
 7) get author info from ~/.pypirc (section: simple_setup, options: author, author_name)
+
+
+Updating
+----
+
+simple_setup.py can now update in-place with:
+
+python setup.py fetch
+
+WARNING this will overwrite your setup.py. It will do it's best to keep any
+customizations and to produce something that doesn't crash :)
