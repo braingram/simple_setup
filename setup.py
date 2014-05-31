@@ -49,26 +49,28 @@ update_url = "https://raw.githubusercontent.com/braingram/simple_setup/master/se
 # MARK
 if (len(sys.argv) > 1) and sys.argv[1] == 'fetch':
     _overrides = {}
-    for _k in locals():
-        if (_k[0] != '_') and not isinstance(locals()[_k], type(sys)):
-            _overrides[_k] = locals()[_k]
+    _locals = locals()
+    for _k in _locals.keys():
+        if (_k[0] != '_') and not isinstance(_locals[_k], type(sys)):
+            _overrides[_k] = _locals[_k]
     if len(sys.argv) > 2:
         target_fn = sys.argv[2]
     else:
         target_fn = __file__
     print("Fetching a new simple_setup.py to {}".format(target_fn))
     import urllib2
-    with urllib2.urlopen(update_url) as new_ss, \
-            open(target_fn, 'w') as target:
+    new_ss = urllib2.urlopen(update_url)
+    with open(target_fn, 'w') as target:
         found_mark = False
         for l in new_ss:
+            print l
             if found_mark or len(l.strip()) == 0:
-                target.write(l + '\n')
+                target.write(l)
             else:
                 if l[0] == '#':
-                    if l == '# MARK':
+                    if l.strip() == '# MARK':
                         found_mark = True
-                    target.write(l + '\n')
+                    target.write(l)
                     continue
                 lt = l.split('=')
                 key = lt[0].strip()
@@ -76,8 +78,10 @@ if (len(sys.argv) > 1) and sys.argv[1] == 'fetch':
                     # copy over the overrides
                     target.write("{} = {!r}\n".format(key, _overrides[key]))
                 else:
-                    target.write(l + '\n')
+                    target.write(l)
                     continue
+    print("successfully fetched new setup.py")
+    sys.exit(0)
 
 if debug:
     logging.basicConfig(level=logging.DEBUG)
