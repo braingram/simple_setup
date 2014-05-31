@@ -7,6 +7,7 @@ import ConfigParser
 import logging
 import os
 import re
+import sys
 
 # ----- overrides -----
 
@@ -42,7 +43,44 @@ debug = True
 use_numpy = False
 
 # -------------------------
+update_url = "https://raw.githubusercontent.com/braingram/simple_setup/master/setup.py"
+
+# this next line is important for the 'fetch' option (see below)
 # MARK
+if (len(sys.argv) > 1) and sys.argv[1] == 'fetch':
+    _overrides = {}
+    _locals = locals()
+    for _k in _locals.keys():
+        if (_k[0] != '_') and not isinstance(_locals[_k], type(sys)):
+            _overrides[_k] = _locals[_k]
+    if len(sys.argv) > 2:
+        target_fn = sys.argv[2]
+    else:
+        target_fn = __file__
+    print("Fetching a new simple_setup.py to {}".format(target_fn))
+    import urllib2
+    new_ss = urllib2.urlopen(update_url)
+    with open(target_fn, 'w') as target:
+        found_mark = False
+        for l in new_ss:
+            if found_mark or len(l.strip()) == 0:
+                target.write(l)
+            else:
+                if l[0] == '#':
+                    if l.strip() == '# MARK':
+                        found_mark = True
+                    target.write(l)
+                    continue
+                lt = l.split('=')
+                key = lt[0].strip()
+                if (len(lt) == 2) and (key in _overrides):
+                    # copy over the overrides
+                    target.write("{} = {!r}\n".format(key, _overrides[key]))
+                else:
+                    target.write(l)
+                    continue
+    print("successfully fetched new setup.py")
+    sys.exit(0)
 
 if debug:
     logging.basicConfig(level=logging.DEBUG)
