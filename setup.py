@@ -102,7 +102,7 @@ except ImportError:
         elif len(vt) > 1:
             vmajor = int(vt[0])
             vminor = int(vt[1])
-        if (hasattr(setuptools, 'distribute') and
+        if (hasattr(setuptools, '_distribute') and
                 setuptools._distribute) or (vmajor > 0 or vminor > 6):
             logging.debug("distribute_setup.py not found, "
                           "defaulted to system distribute")
