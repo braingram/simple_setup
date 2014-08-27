@@ -225,8 +225,7 @@ def detect_version():
     """
     try:
         m = __import__(package_name, fromlist=['__version__'])
-        if hasattr(m, '__version__'):
-            return m.__version__
+        return getattr(m, '__version__', 'dev')
     except ImportError:
         pass
     return 'dev'
