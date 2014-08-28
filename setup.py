@@ -265,6 +265,22 @@ def long_description_from_readme():
     return s
 
 
+def include_requirements_file_in_manifest(fn):
+    mfn = os.path.join(os.path.dirname(__file__), 'MANIFEST.in')
+    if os.path.exists(mfn):
+        included = False
+        with open(mfn, 'r') as f:
+            for l in f:
+                if fn in l:
+                    included = True
+        if not included:
+            with open(mfn, 'a') as f:
+                f.writelines(["include {}".format(fn), ])
+    else:
+        with open(mfn, 'w') as f:
+            f.writelines(["include {}".format(fn), ])
+
+
 # ----------- Override defaults here ----------------
 if packages is None:
     packages = setuptools.find_packages()
@@ -289,6 +305,8 @@ if os.path.exists(requirements_file):
         requirements = parse_requirements(requirements_file)
     if dependency_links is None:
         dependency_links = parse_dependency_links(requirements_file)
+    # include requirements_file in MANIFEST.in
+    include_requirements_in_manifest(requirements_file)
 else:
     if requirements is None:
         requirements = []
