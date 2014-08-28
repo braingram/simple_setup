@@ -306,7 +306,7 @@ if os.path.exists(requirements_file):
     if dependency_links is None:
         dependency_links = parse_dependency_links(requirements_file)
     # include requirements_file in MANIFEST.in
-    include_requirements_in_manifest(requirements_file)
+    include_requirements_file_in_manifest(requirements_file)
 else:
     if requirements is None:
         requirements = []
