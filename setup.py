@@ -3,7 +3,10 @@
 
 """ distribute- and pip-enabled setup.py """
 
-import ConfigParser
+try:
+    import ConfigParser
+except ImportError:
+    import configparser as ConfigParser
 import logging
 import os
 import re
@@ -139,7 +142,7 @@ def find_subdirectories(package):
     This will include resources (non-submodules) and submodules
     """
     try:
-        subdirectories = os.walk(package_to_path(package)).next()[1]
+        subdirectories = next(os.walk(package_to_path(package)))[1]
     except StopIteration:
         subdirectories = []
     return subdirectories
@@ -173,6 +176,9 @@ def find_package_data(packages):
         for subdir in find_subdirectories(package):
             if '.'.join((package, subdir)) in packages:  # skip submodules
                 logging.debug("skipping submodule %s/%s" % (package, subdir))
+                continue
+            if subdir == '__pycache__':
+                logging.debug("skipping %s/__pycache__" % package)
                 continue
             if skip_tests and (subdir == 'tests'):  # skip tests
                 logging.debug("skipping tests %s/%s" % (package, subdir))
@@ -363,7 +369,7 @@ if __name__ == '__main__':
         config = Configuration(package_name, '', None)
 
         for sub_package in sub_packages:
-            print 'adding', sub_package
+            print('adding', sub_package)
             config.add_subpackage(sub_package)
 
         from numpy.distutils.core import setup
